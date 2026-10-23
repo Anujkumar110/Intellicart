@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Intellicart — AI-Powered Electronics Store</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="#" class="logo" onclick="navigateTo('products')">🛒 Intellicart</a>
+
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search laptops, phones, headphones..." onkeyup="handleSearch(event)">
+        <button onclick="searchProducts()">🔍</button>
+      </div>
+
+      <nav class="nav-links">
+        <a href="#" onclick="navigateTo('products')" class="nav-link active" data-page="products">Products</a>
+        <a href="#" onclick="navigateTo('orders')" class="nav-link" data-page="orders">Orders</a>
+        <a href="#" onclick="navigateTo('cart')" class="nav-link cart-link" data-page="cart">
+          🛒 Cart <span id="cartCount" class="cart-badge">0</span>
+        </a>
+        <button id="authBtn" class="btn btn-primary" onclick="toggleAuthModal()">Login</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Products Page -->
+    <section id="page-products" class="page active">
+      <div class="products-layout">
+        <aside class="sidebar">
+          <h3>Categories</h3>
+          <ul class="category-list">
+            <li><a href="#" class="category-item active" onclick="filterCategory(null, this)">All Products</a></li>
+            <li><a href="#" class="category-item" onclick="filterCategory('laptop', this)">💻 Laptops</a></li>
+            <li><a href="#" class="category-item" onclick="filterCategory('phone', this)">📱 Phones</a></li>
+            <li><a href="#" class="category-item" onclick="filterCategory('tablet', this)">📟 Tablets</a></li>
+            <li><a href="#" class="category-item" onclick="filterCategory('headphone', this)">🎧 Headphones</a></li>
+            <li><a href="#" class="category-item" onclick="filterCategory('smartwatch', this)">⌚ Smartwatches</a></li>
+          </ul>
+
+          <h3>Sort By</h3>
+          <select id="sortSelect" onchange="sortProducts(this.value)">
+            <option value="">Newest</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+
+          <h3>Price Range</h3>
+          <div class="price-filter">
+            <input type="number" id="minPrice" placeholder="Min" min="0">
+            <span>—</span>
+            <input type="number" id="maxPrice" placeholder="Max" min="0">
+            <button class="btn btn-small" onclick="applyPriceFilter()">Go</button>
+          </div>
+        </aside>
+
+        <div class="products-area">
+          <div class="products-header">
+            <h2 id="productsTitle">All Products</h2>
+            <span id="productCount" class="product-count"></span>
+          </div>
+          <div id="productsGrid" class="products-grid">
+            <!-- products rendered here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cart Page -->
+    <section id="page-cart" class="page">
+      <h2>Shopping Cart</h2>
+      <div id="cartContent" class="cart-content">
+        <!-- cart items rendered here -->
+      </div>
+    </section>
+
+    <!-- Orders Page -->
+    <section id="page-orders" class="page">
+      <h2>My Orders</h2>
+      <div id="ordersContent" class="orders-content">
+        <!-- orders rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Product Detail Modal -->
+  <div id="productModal" class="modal">
+    <div class="modal-content modal-large">
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+      <div id="productDetail" class="product-detail">
+        <!-- product detail rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth Modal -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="toggleAuthModal()">✕</button>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('login', this)">Login</button>
+        <button class="auth-tab" onclick="switchAuthTab('register', this)">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" required placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Login</button>
+        <p id="loginError" class="form-error"></p>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" class="auth-form" style="display:none" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="regName" required placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="regEmail" required placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" required minlength="6" placeholder="••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Register</button>
+        <p id="registerError" class="form-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Order Modal -->
+  <div id="orderModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+      <h2>Shipping Address</h2>
+      <form id="orderForm" onsubmit="handlePlaceOrder(event)">
+        <div class="form-group">
+          <label>Street</label>
+          <input type="text" id="orderStreet" required placeholder="123 Main Street">
+        </div>
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="orderCity" required placeholder="New Delhi">
+        </div>
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="orderState" required placeholder="Delhi">
+        </div>
+        <div class="form-group">
+          <label>Zip Code</label>
+          <input type="text" id="orderZip" required placeholder="110001">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Place Order</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chat Widget -->
+  <button id="chatToggle" class="chat-toggle" onclick="toggleChat()">💬</button>
+  <div id="chatWidget" class="chat-widget">
+    <div class="chat-header">
+      <span>🤖 Intellicart AI</span>
+      <button onclick="toggleChat()">✕</button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+      <div class="chat-msg bot">
+        <p>Hi! I'm the Intellicart AI assistant. Ask me anything about our products!</p>
+        <p class="chat-hint">Try: "best laptop under 2000" or "recommend headphones"</p>
+      </div>
+    </div>
+    <form class="chat-input" onsubmit="handleChat(event)">
+      <input type="text" id="chatInput" placeholder="Ask about products..." autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
